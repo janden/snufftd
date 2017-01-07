@@ -40,43 +40,10 @@ function f = nufftd(N, omega, alpha, b, q, m)
         error('N must be even.');
     end
 
-    n = size(omega, 1);
     d = size(omega, 2);
 
-    mu = round(m*omega);
-
-    % Precalculate kernel factors and weighting function.
-    delta = m*omega-mu;
-
-    P1 = exp(-[-q/2:q/2]'.^2/(4*b));
-    P2 = exp(-delta.^2/(4*b));
-    P3 = exp(2*delta/(4*b));
-
-    wt = exp(b*(2*pi*[-N/2:N/2-1]'/(m*N)).^2);
-
-    % Fill in oversampled Fourier transform tau.
-    tau = zeros([m*N*ones(1, d) 1]);
-
-    js_ind = cell(d, 1);
-
-    for k = 1:n
-        for j = 1:(q+1)^d
-            [js_ind{:}] = ind2sub((q+1)*ones(1, d), j);
-            js = zeros(1, d);
-            for l = 1:d
-                js(l) = js_ind{l}-(q/2+1);
-            end
-
-            mu_j = mod(mu(k,:)+js+m*N/2, m*N)+1;
-
-            tau_ind = (mu_j-1)*((m*N).^[0:d-1]')+1;
-
-            Pkj = 1/(2*sqrt(b*pi))^d* ...
-                prod(P1(js+q/2+1).'.*P2(k,1:d).*(P3(k,1:d).^js));
-
-            tau(tau_ind) = tau(tau_ind) + Pkj*alpha(k);
-        end
-    end
+    % Spread nodes onto oversampled Fourier transform tau.
+    tau = nufftd_spread(N, omega, alpha, b, q, m);
 
     % Apply IFFT, extract central interval, and reweight.
     tau = ifftshift(tau);
@@ -90,6 +57,8 @@ function f = nufftd(N, omega, alpha, b, q, m)
     ind = sub2ind((m*N)*ones(1, d), sub_grid{:});
 
     f = T(ind);
+
+    wt = exp(b*(2*pi*[-N/2:N/2-1]'/(m*N)).^2);
 
     for l = 1:d
         f = bsxfun(@times, f, permute(wt, [2:l 1 l+1]));
