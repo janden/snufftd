@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "nufftd_spread.h"
+
 void checkInputsOutputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
     if(nrhs != 6)
@@ -130,4 +132,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     parseInputs(prhs, &N, &n, &d, &omega, &alpha_re, &alpha_im, &b, &q, &m);
 
     prepareOutputs(plhs, N, d, m, &tau_re, &tau_im);
+
+    nufftd_spread(tau_re, tau_im, N, n, d, omega, alpha_re, alpha_im, b, q, m);
 }
