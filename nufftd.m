@@ -1,7 +1,7 @@
 % NUFFTD Non-uniform fast Fourier transform (NUFFT)
 %
 % Usage
-%    f = nufftd(N, omega, alpha, b, q, m);
+%    f = nufftd(N, omega, alpha, b, q, m, use_mx);
 %
 % Input
 %    N: Desired resolution of the output f, i.e., the side length. If the
@@ -12,6 +12,8 @@
 %    alpha: An array of length n containing the coefficients.
 %    b, q, m: The parameters of the NUFFT (default b is 1.5629, q is 28, and
 %       m is 2).
+%    use_mx: Specifies whether to use MEX implementation of the spreading
+%       function (default false).
 %
 % Output
 %    f: The NUFFT of the frequencies omega with coefficients alpha. In other
@@ -22,7 +24,7 @@
 %
 %       to some approximation accuracy determined by b, q, and m.
 
-function f = nufftd(N, omega, alpha, b, q, m)
+function f = nufftd(N, omega, alpha, b, q, m, use_mx)
     if nargin < 4 || isempty(b)
         b = 1.5629;
     end
@@ -35,6 +37,10 @@ function f = nufftd(N, omega, alpha, b, q, m)
         m = 2;
     end
 
+    if nargin < 7 || isempty(use_mx)
+        use_mx = false;
+    end
+
     % Necessary, for now.
     if mod(N, 2) ~= 0
         error('N must be even.');
@@ -43,7 +49,11 @@ function f = nufftd(N, omega, alpha, b, q, m)
     d = size(omega, 2);
 
     % Spread nodes onto oversampled Fourier transform tau.
-    tau = nufftd_spread(N, omega, alpha, b, q, m);
+    if ~use_mx
+        tau = nufftd_spread(N, omega, alpha, b, q, m);
+    else
+        tau = nufftd_spread_mx(N, omega, alpha, b, q, m);
+    end
 
     % Apply IFFT, extract central interval, and reweight.
     tau = ifftshift(tau);
