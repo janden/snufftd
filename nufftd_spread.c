@@ -31,6 +31,8 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
     double Pji;
 
     int *mu;
+    double Pji0;
+    int *mnPowers;
 
     i = calloc(d, sizeof(int));
 
@@ -40,9 +42,19 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
 
     mu = calloc(n*d, sizeof(int));
 
+    mnPowers = calloc(d, sizeof(int));
+
     for(j = 0; j < n*d; j++)
     {
         mu[j] = (int) round(m*omega[j]);
+    }
+
+    Pji0 = 1/pow(2*sqrt(b*M_PI), d);
+
+    mnPowers[0] = 1;
+    for(k = 1; k < d; k++)
+    {
+        mnPowers[k] = mnPowers[k-1]*m*N;
     }
 
     precalc_gaussian_kernel(n, d, omega, b, q, m, mu, P1, P2, P3);
@@ -54,13 +66,13 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
         while(1)
         {
             ind = 0;
-            Pji = 1/pow(2*sqrt(b*M_PI), d);
+            Pji = Pji0;
 
             for(k = 0; k < d; k++)
             {
                 ind_k = (mu[j+k*n]+i[k]-q/2+m*N/2) % (m*N);
                 ind_k = (ind_k < 0) ? (ind_k+m*N) : ind_k;
-                ind += ind_k*pow(m*N, k);
+                ind += ind_k*mnPowers[k];
 
                 Pji *= P1[i[k]]*P2[j+k*n]*pow(P3[j+k*n], i[k]-q/2);
             }
@@ -101,4 +113,6 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
     free(P3);
 
     free(mu);
+
+    free(mnPowers);
 }
