@@ -66,7 +66,21 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
                 ind_k = (ind_k < 0) ? (ind_k+m*N) : ind_k;
                 ind += ind_k*mnPowers[k];
 
-                Pji *= P1[i[k]]*P2[k]*pow(P3[k], i[k]-q/2);
+                Pji *= P1[i[k]]*P2[k];
+                if(i[k] < q/2)
+                {
+                    for(l = 0; l < q/2-i[k]; l++)
+                    {
+                        Pji /= P3[k];
+                    }
+                }
+                else
+                {
+                    for(l = 0; l < i[k]-q/2; l++)
+                    {
+                        Pji *= P3[k];
+                    }
+                }
             }
 
             tau_re[ind] += Pji*alpha_re[j];
