@@ -5,7 +5,7 @@
 
 #include "nufftd_spread.h"
 
-void checkInputsOutputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+void check_inputs_outputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
     if(nrhs != 6)
     {
@@ -73,7 +73,7 @@ void checkInputsOutputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs
     }
 }
 
-void parseInputs(const mxArray *prhs[], mwSize *N, mwSize *n, mwSize *d, double **omega, double **alpha_re, double **alpha_im, double *b, int *q, int *m)
+void parse_inputs(const mxArray *prhs[], mwSize *N, mwSize *n, mwSize *d, double **omega, double **alpha_re, double **alpha_im, double *b, int *q, int *m)
 {
     *N = (mwSize) round(mxGetScalar(prhs[0]));
     *n = mxGetM(prhs[1]);
@@ -97,7 +97,7 @@ void parseInputs(const mxArray *prhs[], mwSize *N, mwSize *n, mwSize *d, double 
     *m = (int) round(mxGetScalar(prhs[5]));
 }
 
-void prepareOutputs(mxArray *plhs[], mwSize N, mwSize d, int m, double **tau_re, double **tau_im)
+void prepare_outputs(mxArray *plhs[], mwSize N, mwSize d, int m, double **tau_re, double **tau_im)
 {
     mwSize *dims;
     int i, ndims;
@@ -127,11 +127,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     double b;
     int q, m;
 
-    checkInputsOutputs(nlhs, plhs, nrhs, prhs);
+    check_inputs_outputs(nlhs, plhs, nrhs, prhs);
 
-    parseInputs(prhs, &N, &n, &d, &omega, &alpha_re, &alpha_im, &b, &q, &m);
+    parse_inputs(prhs, &N, &n, &d, &omega, &alpha_re, &alpha_im, &b, &q, &m);
 
-    prepareOutputs(plhs, N, d, m, &tau_re, &tau_im);
+    prepare_outputs(plhs, N, d, m, &tau_re, &tau_im);
 
     nufftd_spread(tau_re, tau_im, N, n, d, omega, alpha_re, alpha_im, b, q, m);
 }

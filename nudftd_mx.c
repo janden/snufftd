@@ -5,7 +5,7 @@
 
 #include "nudftd.h"
 
-void checkInputsOutputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+void check_inputs_outputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
     if(nrhs != 3)
     {
@@ -43,7 +43,7 @@ void checkInputsOutputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs
     }
 }
 
-void parseInputs(const mxArray *prhs[], mwSize *N, mwSize *n, mwSize *d, double **omega, double **alpha_re, double **alpha_im)
+void parse_inputs(const mxArray *prhs[], mwSize *N, mwSize *n, mwSize *d, double **omega, double **alpha_re, double **alpha_im)
 {
     *N = (mwSize) round(mxGetScalar(prhs[0]));
     *n = mxGetM(prhs[1]);
@@ -63,7 +63,7 @@ void parseInputs(const mxArray *prhs[], mwSize *N, mwSize *n, mwSize *d, double 
     }
 }
 
-void prepareOutputs(mxArray *plhs[], mwSize N, mwSize d, double **f_re, double **f_im)
+void prepare_outputs(mxArray *plhs[], mwSize N, mwSize d, double **f_re, double **f_im)
 {
     mwSize *dims;
     int i, ndims;
@@ -90,11 +90,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     mwSize N, n, d;
     double *omega, *alpha_re, *alpha_im, *f_re, *f_im;
 
-    checkInputsOutputs(nlhs, plhs, nrhs, prhs);
+    check_inputs_outputs(nlhs, plhs, nrhs, prhs);
 
-    parseInputs(prhs, &N, &n, &d, &omega, &alpha_re, &alpha_im);
+    parse_inputs(prhs, &N, &n, &d, &omega, &alpha_re, &alpha_im);
 
-    prepareOutputs(plhs, N, d, &f_re, &f_im);
+    prepare_outputs(plhs, N, d, &f_re, &f_im);
 
     nudftd(f_re, f_im, N, n, d, omega, alpha_re, alpha_im);
 }
