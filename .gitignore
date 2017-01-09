@@ -1,5 +1,5 @@
 *.sw*
 .nfs*
-*.mex
+*.mex*
 *.o
 .DS_Store
