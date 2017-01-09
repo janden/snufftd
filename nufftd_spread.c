@@ -4,7 +4,7 @@
 #include <math.h>
 #include <string.h>
 
-void precalc_gaussian_kernel(int n, int d, double *omega, double b, int q, int m, double *P1, double *P2, double *P3)
+void precalc_gaussian_kernel(int n, int d, double *omega, double b, int q, int m, int *mu, double *P1, double *P2, double *P3)
 {
     int j;
     double delta;
@@ -16,7 +16,7 @@ void precalc_gaussian_kernel(int n, int d, double *omega, double b, int q, int m
 
     for(j = 0; j < n*d; j++)
     {
-        delta = m*omega[j]-round(m*omega[j]);
+        delta = m*omega[j]-mu[j];
 
         P2[j] = exp(-delta*delta/(4*b));
         P3[j] = exp(2*delta/(4*b));
@@ -30,13 +30,22 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
     double *P1, *P2, *P3;
     double Pji;
 
+    int *mu;
+
     i = calloc(d, sizeof(int));
 
     P1 = (double *) calloc(q+1, sizeof(double));
     P2 = (double *) calloc(n*d, sizeof(double));
     P3 = (double *) calloc(n*d, sizeof(double));
 
-    precalc_gaussian_kernel(n, d, omega, b, q, m, P1, P2, P3);
+    mu = calloc(n*d, sizeof(int));
+
+    for(j = 0; j < n*d; j++)
+    {
+        mu[j] = (int) round(m*omega[j]);
+    }
+
+    precalc_gaussian_kernel(n, d, omega, b, q, m, mu, P1, P2, P3);
 
     for(j = 0; j < n; j++)
     {
@@ -49,7 +58,7 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
 
             for(k = 0; k < d; k++)
             {
-                ind_k = (((int) round(m*omega[j+k*n]))+i[k]-q/2+m*N/2) % (m*N);
+                ind_k = (mu[j+k*n]+i[k]-q/2+m*N/2) % (m*N);
                 ind_k = (ind_k < 0) ? (ind_k+m*N) : ind_k;
                 ind += ind_k*pow(m*N, k);
 
@@ -90,4 +99,6 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
     free(P1);
     free(P2);
     free(P3);
+
+    free(mu);
 }
