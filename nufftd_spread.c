@@ -6,20 +6,23 @@
 
 void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *omega, double *alpha_re, double *alpha_im, double b, int q, int m)
 {
-    int j, k, l, carry, ind, ind_k;
-    int *i;
+    int j, k, l, carry, ind_k, updated;
+    int *i, *ind;
     double *P1, *P2, *P3;
-    double Pji;
+    double *Pji;
 
     int *mu;
     double Pji0, delta;
     int *mnPowers;
 
     i = calloc(d, sizeof(int));
+    ind = calloc(d+1, sizeof(int));
 
     P1 = (double *) calloc(q+1, sizeof(double));
     P2 = (double *) calloc(d, sizeof(double));
     P3 = (double *) calloc(d, sizeof(double));
+
+    Pji = (double *) calloc(d+1, sizeof(double));
 
     mu = calloc(n*d, sizeof(int));
 
@@ -43,6 +46,10 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
         mnPowers[k] = mnPowers[k-1]*m*N;
     }
 
+    Pji[d] = Pji0;
+
+    updated = d;
+
     for(j = 0; j < n; j++)
     {
         memset(i, 0, d*sizeof(int));
@@ -57,36 +64,33 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
 
         while(1)
         {
-            ind = 0;
-            Pji = Pji0;
-
-            for(k = 0; k < d; k++)
+            for(k = updated-1; k >= 0; k--)
             {
                 ind_k = (mu[j+k*n]+i[k]-q/2+m*N/2) % (m*N);
                 ind_k = (ind_k < 0) ? (ind_k+m*N) : ind_k;
-                ind += ind_k*mnPowers[k];
+                ind[k] = ind_k*mnPowers[k]+ind[k+1];
 
-                Pji *= P1[i[k]]*P2[k];
+                Pji[k] = Pji[k+1]*P1[i[k]]*P2[k];
                 if(i[k] < q/2)
                 {
                     for(l = 0; l < q/2-i[k]; l++)
                     {
-                        Pji /= P3[k];
+                        Pji[k] /= P3[k];
                     }
                 }
                 else
                 {
                     for(l = 0; l < i[k]-q/2; l++)
                     {
-                        Pji *= P3[k];
+                        Pji[k] *= P3[k];
                     }
                 }
             }
 
-            tau_re[ind] += Pji*alpha_re[j];
+            tau_re[ind[0]] += Pji[0]*alpha_re[j];
             if(alpha_im != NULL)
             {
-                tau_im[ind] += Pji*alpha_im[j];
+                tau_im[ind[0]] += Pji[0]*alpha_im[j];
             }
 
             carry = 1;
@@ -104,6 +108,7 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
 
                 k++;
             }
+            updated = k;
 
             if(carry)
             {
@@ -113,10 +118,13 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
     }
 
     free(i);
+    free(ind);
 
     free(P1);
     free(P2);
     free(P3);
+
+    free(Pji);
 
     free(mu);
 
