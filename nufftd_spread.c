@@ -8,19 +8,18 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
 {
     int j, k, l, carry, ind_k, updated;
     int *i, *ind;
-    double *P1, *P2, *P3;
+    double *P1, *Pj;
     double *Pji;
 
     int *mu;
-    double delta;
+    double delta, mult;
     int *mnPowers;
 
     i = calloc(d, sizeof(int));
     ind = calloc(d+1, sizeof(int));
 
     P1 = (double *) calloc(q+1, sizeof(double));
-    P2 = (double *) calloc(d, sizeof(double));
-    P3 = (double *) calloc(d*(q+1), sizeof(double));
+    Pj = (double *) calloc(d*(q+1), sizeof(double));
 
     Pji = (double *) calloc(d+1, sizeof(double));
 
@@ -56,16 +55,21 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
         {
             delta = m*omega[j+k*n]-mu[k];
 
-            P2[k] = exp(-delta*delta/(4*b));
+            mult = exp(2*delta/(4*b));
 
-            P3[k+d*(q/2)] = 1;
-            P3[k+d*(q/2+1)] = exp(2*delta/(4*b));
-            P3[k+d*(q/2-1)] = 1/P3[k+d*(q/2+1)];
+            Pj[k+d*(q/2)] = exp(-delta*delta/(4*b));
+            Pj[k+d*(q/2+1)] = Pj[k+d*(q/2)]*mult;
+            Pj[k+d*(q/2-1)] = Pj[k+d*(q/2)]/mult;
 
             for(l = 2; l <= q/2; l++)
             {
-                P3[k+d*(q/2+l)] = P3[k+d*(q/2+l-1)]*P3[k+d*(q/2+1)];
-                P3[k+d*(q/2-l)] = P3[k+d*(q/2-l+1)]*P3[k+d*(q/2-1)];
+                Pj[k+d*(q/2+l)] = Pj[k+d*(q/2+l-1)]*mult;
+                Pj[k+d*(q/2-l)] = Pj[k+d*(q/2-l+1)]/mult;
+            }
+
+            for(l = 0; l < q+1; l++)
+            {
+                Pj[k+d*l] *= P1[l];
             }
         }
 
@@ -77,7 +81,7 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
                 ind_k = (ind_k < 0) ? (ind_k+m*N) : ind_k;
                 ind[k] = ind_k*mnPowers[k]+ind[k+1];
 
-                Pji[k] = Pji[k+1]*P1[i[k]]*P2[k]*P3[k+d*i[k]];
+                Pji[k] = Pji[k+1]*Pj[k+d*i[k]];
             }
 
             tau_re[ind[0]] += Pji[0]*alpha_re[j];
@@ -114,8 +118,7 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
     free(ind);
 
     free(P1);
-    free(P2);
-    free(P3);
+    free(Pj);
 
     free(Pji);
 
