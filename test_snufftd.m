@@ -36,7 +36,7 @@ tmr = tic;
 f3 = snufftd(N, omega, alpha);
 tm3 = toc(tmr);
 err3 = norm(f0(:)-f3(:));
-fprintf('%-15sTime: %15f s    Error: %15g\n', 'CNUFFT', tm3, err3);
+fprintf('%-15sTime: %15f s    Error: %15g\n', 'SNUFFT', tm3, err3);
 
 if exist('nufft1d1') && d <= 3
     if d == 1
