@@ -12,7 +12,7 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
     double *Pji;
 
     int *mu;
-    double delta, mult;
+    double delta, mult, alpha_re_j, alpha_im_j;
     int *mnPowers;
 
     i = calloc(d, sizeof(int));
@@ -91,6 +91,9 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
                 Pji[k] = Pji[k+1]*Pj[k+d*i[k]];
             }
 
+            alpha_re_j = Pji[1]*alpha_re[j];
+            alpha_im_j = Pji[1]*alpha_im[j];
+
             ind_k = mu[0]-q/2+m*N/2;
             while(ind_k < 0)
             {
@@ -104,12 +107,11 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
             for(i[0] = 0; i[0] < q+1; i[0]++)
             {
                 ind[0] = ind_k+ind[1];
-                Pji[0] = Pji[1]*Pj[d*i[0]];
 
-                tau_re[ind[0]] += Pji[0]*alpha_re[j];
+                tau_re[ind[0]] += Pj[d*i[0]]*alpha_re_j;
                 if(alpha_im != NULL)
                 {
-                    tau_im[ind[0]] += Pji[0]*alpha_im[j];
+                    tau_im[ind[0]] += Pj[d*i[0]]*alpha_im_j;
                 }
 
                 ind_k++;
