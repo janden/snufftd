@@ -92,7 +92,10 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
             }
 
             alpha_re_j = Pji[1]*alpha_re[j];
-            alpha_im_j = Pji[1]*alpha_im[j];
+            if(alpha_im != NULL)
+            {
+                alpha_im_j = Pji[1]*alpha_im[j];
+            }
 
             ind_k = mu[0]-q/2+m*N/2;
             while(ind_k < 0)
