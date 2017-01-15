@@ -12,7 +12,7 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
     double *Pji;
 
     int *mu;
-    double delta, mult, alpha_re_j, alpha_im_j;
+    double delta, mult, val, alpha_re_j, alpha_im_j;
     int *mnPowers;
 
     i = calloc(d, sizeof(int));
@@ -55,21 +55,24 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
         {
             delta = m*omega[j+k*n]-mu[k];
 
+            Pj[(q/2)+k*(q+1)] = exp(-delta*delta/(4*b));
+
+            val = Pj[(q/2)+k*(q+1)];
             mult = exp(2*delta/(4*b));
 
-            Pj[(q/2)+k*(q+1)] = exp(-delta*delta/(4*b));
-            Pj[(q/2+1)+k*(q+1)] = Pj[(q/2)+k*(q+1)]*mult;
-            Pj[(q/2-1)+k*(q+1)] = Pj[(q/2)+k*(q+1)]/mult;
-
-            for(l = 2; l <= q/2; l++)
+            for(l = 1; l <= q/2; l++)
             {
-                Pj[(q/2+l)+k*(q+1)] = Pj[(q/2+l-1)+k*(q+1)]*mult;
-                Pj[(q/2-l)+k*(q+1)] = Pj[(q/2-l+1)+k*(q+1)]/mult;
+                val = val*mult;
+                Pj[(q/2+l)+k*(q+1)] = P1[q/2+l]*val;
             }
 
-            for(l = 0; l < q+1; l++)
+            val = Pj[(q/2)+k*(q+1)];
+            mult = 1/mult;
+
+            for(l = 1; l <= q/2; l++)
             {
-                Pj[l+k*(q+1)] *= P1[l];
+                val = val*mult;
+                Pj[(q/2-l)+k*(q+1)] = P1[q/2-l]*val;
             }
         }
 
