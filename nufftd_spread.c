@@ -57,19 +57,19 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
 
             mult = exp(2*delta/(4*b));
 
-            Pj[k+d*(q/2)] = exp(-delta*delta/(4*b));
-            Pj[k+d*(q/2+1)] = Pj[k+d*(q/2)]*mult;
-            Pj[k+d*(q/2-1)] = Pj[k+d*(q/2)]/mult;
+            Pj[(q/2)+k*(q+1)] = exp(-delta*delta/(4*b));
+            Pj[(q/2+1)+k*(q+1)] = Pj[(q/2)+k*(q+1)]*mult;
+            Pj[(q/2-1)+k*(q+1)] = Pj[(q/2)+k*(q+1)]/mult;
 
             for(l = 2; l <= q/2; l++)
             {
-                Pj[k+d*(q/2+l)] = Pj[k+d*(q/2+l-1)]*mult;
-                Pj[k+d*(q/2-l)] = Pj[k+d*(q/2-l+1)]/mult;
+                Pj[(q/2+l)+k*(q+1)] = Pj[(q/2+l-1)+k*(q+1)]*mult;
+                Pj[(q/2-l)+k*(q+1)] = Pj[(q/2-l+1)+k*(q+1)]/mult;
             }
 
             for(l = 0; l < q+1; l++)
             {
-                Pj[k+d*l] *= P1[l];
+                Pj[l+k*(q+1)] *= P1[l];
             }
         }
 
@@ -88,7 +88,7 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
                 }
                 ind[k] = ind_k*mnPowers[k]+ind[k+1];
 
-                Pji[k] = Pji[k+1]*Pj[k+d*i[k]];
+                Pji[k] = Pji[k+1]*Pj[i[k]+(q+1)*k];
             }
 
             alpha_re_j = Pji[1]*alpha_re[j];
@@ -111,10 +111,10 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
             {
                 ind[0] = ind_k+ind[1];
 
-                tau_re[ind[0]] += Pj[d*i[0]]*alpha_re_j;
+                tau_re[ind[0]] += Pj[i[0]]*alpha_re_j;
                 if(alpha_im != NULL)
                 {
-                    tau_im[ind[0]] += Pj[d*i[0]]*alpha_im_j;
+                    tau_im[ind[0]] += Pj[i[0]]*alpha_im_j;
                 }
 
                 ind_k++;
