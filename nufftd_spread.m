@@ -5,10 +5,10 @@
 %
 % Input
 %    N: Desired resolution of the output f, i.e., the side length. If the
-%      dimension is d, this results in N^d entries for f.
+%       dimension is d, this results in N^d entries for f.
 %    omega: An array of size n-by-d containing the frequencies at which to
-%      compute the transform, where n is the number of nodes and d is the
-%      dimension. Each entry must be in the range [-N/2, N/2].
+%       compute the transform, where n is the number of nodes and d is the
+%       dimension. Each entry must be in the range [-N/2, N/2].
 %    alpha: An array of length n containing the coefficients.
 %    b, q, m: The parameters of the NUFFT (default b is 1.5629, q is 28, and
 %       m is 2).
@@ -16,7 +16,7 @@
 % Output
 %    tau: The oversampled Fourier transform tau of the non-uniform discrete
 %       Fourier transform after convolution with a Gaussian kernel specified
-%       by the b, q, and m parameteres.
+%       by the b, q, and m parameters.
 
 function tau = nufftd_spread(N, omega, alpha, b, q, m)
     n = size(omega, 1);
