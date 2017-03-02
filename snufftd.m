@@ -77,68 +77,16 @@ function grid = make_grid(N, d)
 end
 
 function f_sub = sub_snufftd(N, grid_shift, omega, alpha, b, q, m)
-    n = size(omega, 1);
     d = size(omega, 2);
 
-    mu = round(m*omega);
-
-    delta = m*omega-mu;
-
-    % Precalculate kernel factors and weighting function.
-    P1 = exp(-[-q/2:q/2]'.^2/(4*b));
-    P2 = exp(-delta.^2/(4*b));
-    P3 = exp(2*delta/(4*b));
-
-    wt = exp(b*(2*pi*[-N/2:N/2-1]'/(m*N)).^2);
-
-    % Depending on the relative position of each mu frequency on the shifted
-    % grid, different ranges of j indices will be needed for the kernel. I.e.,
-    % for q = 4 and m = 2, we need [-4 -2 0 2 4] and [-3 -1 1 3]. Enumerate
-    % them here.
-    js_rngs = arrayfun( ...
-        @(shift)([flipud([-shift:-m:-q/2]'); [-shift+m:m:q/2]']), ...
-        0:m-1, 'uniformoutput', false);
-
-    % Fill in shifted Fourier transform tau.
-    tau = zeros([N*ones(1, d) 1]);
-
-    js_ind = cell(d, 1);
-
-    for k = 1:n
-        % Determine the relative shift with respect to the grid and generate
-        % the necessary values of j.
-        mu_shift = mod(mu(k,:)-grid_shift.', m);
-
-        js_rng = js_rngs(mu_shift+1);
-
-        js_sz = cellfun(@numel, js_rng);
-
-        js_count = prod(js_sz);
-
-        % Look through the j indices and calculate the kernel values at the
-        % desired points in tau.
-        for j_ind = 1:js_count
-            [js_ind{:}] = ind2sub(js_sz, j_ind);
-            js = zeros(1, d);
-            for l = 1:d
-                js(l) = js_rng{l}(js_ind{l});
-            end
-
-            mu_j = mod((mu(k,:)+js-grid_shift.')/m+N/2, N)+1;
-
-            tau_ind = (mu_j-1)*(N.^[0:d-1]')+1;
-
-            Pkj = 1/(2*sqrt(b*pi))^d*...
-                prod(P1(js+q/2+1).'.*P2(k,1:d).*(P3(k,1:d).^js));
-
-            tau(tau_ind) = tau(tau_ind) + Pkj*alpha(k);
-        end
-    end
+    tau = sub_snufftd_spread(N, grid_shift, omega, alpha, b, q, m);
 
     % Apply IFFT and reweight.
     tau = ifftshift(tau);
     T = N^d*ifftn(tau);
     T = fftshift(T);
+
+    wt = exp(b*(2*pi*[-N/2:N/2-1]'/(m*N)).^2);
 
     f_sub = T;
     for l = 1:d
