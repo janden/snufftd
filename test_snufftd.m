@@ -38,29 +38,36 @@ tm3 = toc(tmr);
 err3 = norm(f0(:)-f3(:));
 fprintf('%-15sTime: %15f s    Error: %15g\n', 'SNUFFT', tm3, err3);
 
+% MEX-augmented compact non-uniform FFT.
+tmr = tic;
+f4 = snufftd(N, omega, alpha, [], [], [], true);
+tm4 = toc(tmr);
+err4 = norm(f0(:)-f4(:));
+fprintf('%-15sTime: %15f s    Error: %15g\n', 'SNUFFT (MEX)', tm4, err4);
+
 if exist('nufft1d1') && d <= 3
     if d == 1
         tmr = tic;
-        f4 = n*nufft1d1(n, ...
+        f5 = n*nufft1d1(n, ...
             2*pi/N*omega(:,1), ...
             alpha, 1, 1e-10, N);
-        tm4 = toc(tmr);
-        fun4 = 'nufft1d1';
+        tm5 = toc(tmr);
+        fun5 = 'nufft1d1';
     elseif d == 2
         tmr = tic;
-        f4 = n*nufft2d1(n, ...
+        f5 = n*nufft2d1(n, ...
             2*pi/N*omega(:,1), 2*pi/N*omega(:,2), ...
             alpha, 1, 1e-10, N, N);
-        tm4 = toc(tmr);
-        fun4 = 'nufft2d1';
+        tm5 = toc(tmr);
+        fun5 = 'nufft2d1';
     elseif d == 3
         tmr = tic;
-        f4 = n*nufft3d1(n, ...
+        f5 = n*nufft3d1(n, ...
             2*pi/N*omega(:,1), 2*pi/N*omega(:,2), 2*pi/N*omega(:,3), ...
             alpha, 1, 1e-10, N, N, N);
-        tm4 = toc(tmr);
-        fun4 = 'nufft3d1';
+        tm5 = toc(tmr);
+        fun5 = 'nufft3d1';
     end
-    err4 = norm(f0(:)-f4(:));
-    fprintf('%-15sTime: %15f s    Error: %15g\n', fun4, tm4, err4);
+    err5 = norm(f0(:)-f5(:));
+    fprintf('%-15sTime: %15f s    Error: %15g\n', fun5, tm5, err5);
 end
