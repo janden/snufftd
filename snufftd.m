@@ -47,20 +47,6 @@ function f = snufftd(N, omega, alpha, b, q, m)
 
     delta = m*omega-mu;
 
-    % Precalculate kernel factors and weighting function. These are sent to
-    % each of the sub-NUFFTs.
-    P1 = exp(-[-q/2:q/2]'.^2/(4*b));
-    P2 = exp(-delta.^2/(4*b));
-    P3 = exp(2*delta/(4*b));
-
-    wt = exp(b*(2*pi*[-N/2:N/2-1]'/(m*N)).^2);
-
-    common.mu = mu;
-    common.P1 = P1;
-    common.P2 = P2;
-    common.P3 = P3;
-    common.wt = wt;
-
     f = zeros([N*ones(1, d) 1]);
 
     grid = make_grid(N, d);
@@ -72,7 +58,7 @@ function f = snufftd(N, omega, alpha, b, q, m)
         [grid_shift{:}] = ind2sub(m*ones(1, d), grid_ind);
         grid_shift = cell2mat(grid_shift)-1;
 
-        f_sub = sub_snufftd(N, grid_shift, omega, alpha, b, q, m, common);
+        f_sub = sub_snufftd(N, grid_shift, omega, alpha, b, q, m);
 
         phase_shift = reshape(grid, [N^d d])*(grid_shift(:)/(m*N));
         phase_shift = reshape(phase_shift, [N*ones(1, d) 1]);
@@ -90,19 +76,20 @@ function grid = make_grid(N, d)
     grid = cell2mat(permute(grid, [2:d+1 1]));
 end
 
-function f_sub = sub_snufftd(N, grid_shift, omega, alpha, b, q, m, common)
+function f_sub = sub_snufftd(N, grid_shift, omega, alpha, b, q, m)
     n = size(omega, 1);
     d = size(omega, 2);
 
-    mu = common.mu;
+    mu = round(m*omega);
 
     delta = m*omega-mu;
 
-    P1 = common.P1;
-    P2 = common.P2;
-    P3 = common.P3;
+    % Precalculate kernel factors and weighting function.
+    P1 = exp(-[-q/2:q/2]'.^2/(4*b));
+    P2 = exp(-delta.^2/(4*b));
+    P3 = exp(2*delta/(4*b));
 
-    wt = common.wt;
+    wt = exp(b*(2*pi*[-N/2:N/2-1]'/(m*N)).^2);
 
     % Depending on the relative position of each mu frequency on the shifted
     % grid, different ranges of j indices will be needed for the kernel. I.e.,
