@@ -72,7 +72,7 @@ function f = snufftd(N, omega, alpha, b, q, m)
         [grid_shift{:}] = ind2sub(m*ones(1, d), grid_ind);
         grid_shift = cell2mat(grid_shift)-1;
 
-        f_sub = sub_nufftd(N, grid_shift, omega, alpha, b, q, m, common);
+        f_sub = sub_snufftd(N, grid_shift, omega, alpha, b, q, m, common);
 
         phase_shift = reshape(grid, [N^d d])*(grid_shift(:)/(m*N));
         phase_shift = reshape(phase_shift, [N*ones(1, d) 1]);
@@ -90,7 +90,7 @@ function grid = make_grid(N, d)
     grid = cell2mat(permute(grid, [2:d+1 1]));
 end
 
-function f_sub = sub_nufftd(N, grid_shift, omega, alpha, b, q, m, common)
+function f_sub = sub_snufftd(N, grid_shift, omega, alpha, b, q, m, common)
     n = size(omega, 1);
     d = size(omega, 2);
 
