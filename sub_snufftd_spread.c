@@ -18,7 +18,9 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
     int max_width, center_ind;
     int *mu_shift;
 
-    int *start_ind, *num_ind;
+    int *num_ind;
+
+    int extm, extp;
 
     max_width = 2*(q/(2*m))+2;
     center_ind = q/(2*m);
@@ -37,7 +39,6 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
 
     mu_shift = calloc(d, sizeof(int));
 
-    start_ind = calloc(d, sizeof(int));
     num_ind = calloc(d, sizeof(int));
 
     for(j = 0; j < q+1; j++)
@@ -71,40 +72,44 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
 
         for(k = 0; k < d; k++)
         {
+            extm = (q/2-mu_shift[k])/m;
+            extp = (q/2+mu_shift[k])/m;
+
             delta = m*omega[j+k*n]-mu[k];
 
             val = exp(-(delta*delta+2*mu_shift[k]*delta)/(4*b));
 
-            Pj[center_ind+k*max_width] = val;
+            Pj[extm+k*max_width] = val;
 
             mult = exp(-2*m*delta/(4*b));
 
-            for(l = 1; l <= (q/2-mu_shift[k])/m; l++)
+            for(l = 1; l <= extm; l++)
             {
                 val = val*mult;
-                Pj[center_ind-l+k*max_width] = P1[q/2-mu_shift[k]-m*l]*val;
+                Pj[extm-l+k*max_width] = P1[q/2-mu_shift[k]-m*l]*val;
             }
 
-            val = Pj[center_ind+k*max_width];
+            val = Pj[extm+k*max_width];
             mult = 1/mult;
 
-            for(l = 1; l <= (q/2+mu_shift[k])/m; l++)
+            for(l = 1; l <= extp; l++)
             {
                 val = val*mult;
-                Pj[center_ind+l+k*max_width] = P1[q/2-mu_shift[k]+m*l]*val;
+                Pj[extm+l+k*max_width] = P1[q/2-mu_shift[k]+m*l]*val;
             }
 
-            Pj[center_ind+k*max_width] = P1[q/2-mu_shift[k]]*Pj[center_ind+k*max_width];
+            Pj[extm+k*max_width] = P1[q/2-mu_shift[k]]*Pj[extm+k*max_width];
 
-            start_ind[k] = -(q/2-mu_shift[k])/m;
-            num_ind[k] = (q/2-mu_shift[k])/m+(q/2+mu_shift[k])/m+1;
+            mu[k] = (mu[k]-grid_shift[k]-mu_shift[k])/m-extm;
+
+            num_ind[k] = extm+extp+1;
         }
 
         while(1)
         {
             for(k = updated-1; k > 0; k--)
             {
-                ind_k = (mu[k]-grid_shift[k]-mu_shift[k])/m+i[k]+start_ind[k]+N/2;
+                ind_k = mu[k]+i[k]+N/2;
                 while(ind_k < 0)
                 {
                     ind_k += N;
@@ -115,7 +120,7 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
                 }
                 ind[k] = ind_k*nPowers[k]+ind[k+1];
 
-                Pji[k] = Pji[k+1]*Pj[i[k]+start_ind[k]+center_ind+max_width*k];
+                Pji[k] = Pji[k+1]*Pj[i[k]+max_width*k];
             }
 
             alpha_re_j = Pji[1]*alpha_re[j];
@@ -124,7 +129,7 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
                 alpha_im_j = Pji[1]*alpha_im[j];
             }
 
-            ind_k = (mu[0]-grid_shift[0]-mu_shift[0])/m+start_ind[0]+N/2;
+            ind_k = mu[0]+N/2;
 
             while(ind_k < 0)
             {
@@ -139,10 +144,10 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
             {
                 ind[0] = ind_k+ind[1];
 
-                tau_re[ind[0]] += Pj[i[0]+start_ind[0]+center_ind]*alpha_re_j;
+                tau_re[ind[0]] += Pj[i[0]]*alpha_re_j;
                 if(alpha_im != NULL)
                 {
-                    tau_im[ind[0]] += Pj[i[0]+start_ind[0]+center_ind]*alpha_im_j;
+                    tau_im[ind[0]] += Pj[i[0]]*alpha_im_j;
                 }
 
                 ind_k++;
@@ -190,7 +195,6 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
 
     free(mu_shift);
 
-    free(start_ind);
     free(num_ind);
 }
 
