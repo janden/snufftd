@@ -12,7 +12,7 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
     double *Pji;
 
     int *mu;
-    double delta, mult, multm, val, alpha_re_j, alpha_im_j;
+    double delta, mult, val, alpha_re_j, alpha_im_j;
     int *nPowers;
 
     int max_width, center_ind;
@@ -73,35 +73,24 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
         {
             delta = m*omega[j+k*n]-mu[k];
 
-            val = exp(-delta*delta/(4*b));
-            mult = exp(-2*delta/(4*b));
-
-            for(l = 0; l < mu_shift[k]; l++)
-            {
-                val = val*mult;
-            }
+            val = exp(-(delta*delta+2*mu_shift[k]*delta)/(4*b));
 
             Pj[center_ind+k*max_width] = val;
 
-            multm = mult;
-
-            for(l = 1; l < m; l++)
-            {
-                multm = multm*mult;
-            }
+            mult = exp(-2*m*delta/(4*b));
 
             for(l = 1; l <= (q/2-mu_shift[k])/m; l++)
             {
-                val = val*multm;
+                val = val*mult;
                 Pj[center_ind-l+k*max_width] = P1[q/2-mu_shift[k]-m*l]*val;
             }
 
             val = Pj[center_ind+k*max_width];
-            multm = 1/multm;
+            mult = 1/mult;
 
             for(l = 1; l <= (q/2+mu_shift[k])/m; l++)
             {
-                val = val*multm;
+                val = val*mult;
                 Pj[center_ind+l+k*max_width] = P1[q/2-mu_shift[k]+m*l]*val;
             }
 
