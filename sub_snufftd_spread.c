@@ -6,14 +6,16 @@
 
 void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int *grid_shift, double *omega, double *alpha_re, double *alpha_im, double b, int q, int m)
 {
-    int j, k, l, carry, ind_k, updated;
-    int *i, *ind;
+    int k, l, carry, ind_k, updated;
+    size_t j;
+    int *i;
+    size_t *ind;
     double *P1, *Pj;
     double *Pji;
 
     int *mu;
     double delta, mult, val, alpha_re_j, alpha_im_j;
-    int *nPowers;
+    size_t *nPowers;
 
     int max_width, center_ind;
     int *mu_shift;
@@ -26,7 +28,7 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
     center_ind = q/(2*m);
 
     i = calloc(d, sizeof(int));
-    ind = calloc(d+1, sizeof(int));
+    ind = calloc(d+1, sizeof(size_t));
 
     P1 = (double *) calloc(q+1, sizeof(double));
     Pj = (double *) calloc(d*max_width, sizeof(double));
@@ -35,21 +37,21 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
 
     mu = calloc(d, sizeof(int));
 
-    nPowers = calloc(d, sizeof(int));
+    nPowers = calloc(d, sizeof(size_t));
 
     mu_shift = calloc(d, sizeof(int));
 
     num_ind = calloc(d, sizeof(int));
 
-    for(j = 0; j < q+1; j++)
+    for(l = 0; l < q+1; l++)
     {
-        P1[j] = exp(-(j-q/2)*(j-q/2)/(4*b));
+        P1[l] = exp(-(l-q/2)*(l-q/2)/(4*b));
     }
 
-    nPowers[0] = 1;
+    nPowers[0] = (size_t) 1;
     for(k = 1; k < d; k++)
     {
-        nPowers[k] = nPowers[k-1]*N;
+        nPowers[k] = nPowers[k-1]*((size_t) N);
     }
 
     Pji[d] = 1/pow(2*sqrt(b*M_PI), d);
@@ -118,7 +120,7 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
                 {
                     ind_k -= N;
                 }
-                ind[k] = ind_k*nPowers[k]+ind[k+1];
+                ind[k] = ((size_t) ind_k)*nPowers[k]+ind[k+1];
 
                 Pji[k] = Pji[k+1]*Pj[i[k]+max_width*k];
             }
@@ -142,7 +144,7 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
 
             for(i[0] = 0; i[0] < num_ind[0]; i[0]++)
             {
-                ind[0] = ind_k+ind[1];
+                ind[0] = ((size_t) ind_k)+ind[1];
 
                 tau_re[ind[0]] += Pj[i[0]]*alpha_re_j;
                 if(alpha_im != NULL)
