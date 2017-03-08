@@ -1,7 +1,7 @@
 % SUB_SNUFFTD_SPREAD Shifting non-uniform fast Fourier transform spreading
 %
 % Usage
-%    tau = sub_snufftd_spread(N, grid_shift, omega, alpha, b, q, m);
+%    tau = sub_snufftd_spread(N, grid_shift, omega, alpha, b, q, m, precomp);
 %
 % Input
 %    N: Desired resolution of the output f, i.e., the side length. If the
@@ -15,6 +15,13 @@
 %    alpha: An array of length n containing the coefficients.
 %    b, q, m: The parameters of the NUFFT (default b is 1.5629, q is 28, and
 %       m is 2).
+%    precomp: Optional precomputed coeffcients in the form of an 2-by-d-by-n
+%       array, where the first row corresponds to exp(-delta.^2/(4*b)) and the
+%       second row corresponds to exp(-2*delta/(4*b)), where delta(k,s) is
+%
+%          m*omega(s, k) - round(m*omega(s, k)) .
+%
+%       If left empty, these are calculated on-the-fly (default empty).
 %
 % Output
 %    tau: The oversampled Fourier transform tau, sampled at a grid of
@@ -23,7 +30,11 @@
 %       convolution with a Gaussian kernel specified by the b, q, and m
 %       parameters.
 
-function tau = sub_snufftd_spread(N, grid_shift, omega, alpha, b, q, m)
+function tau = sub_snufftd_spread(N, grid_shift, omega, alpha, b, q, m, precomp)
+    if nargin < 8
+        precomp = [];
+    end
+
     n = size(omega, 1);
     d = size(omega, 2);
 
@@ -33,8 +44,13 @@ function tau = sub_snufftd_spread(N, grid_shift, omega, alpha, b, q, m)
 
     % Precalculate kernel factors and weighting function.
     P1 = exp(-[-q/2:q/2]'.^2/(4*b));
-    P2 = exp(-delta.^2/(4*b));
-    P3 = exp(2*delta/(4*b));
+    if isempty(precomp)
+        P2 = exp(-delta.^2/(4*b));
+        P3 = exp(2*delta/(4*b));
+    else
+        P2 = permute(precomp(1,:,:), [3 2 1]);
+        P3 = permute(1./precomp(2,:,:), [3 2 1]);
+    end
 
     % Depending on the relative position of each mu frequency on the shifted
     % grid, different ranges of j indices will be needed for the kernel. I.e.,
