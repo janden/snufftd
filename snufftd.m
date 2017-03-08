@@ -53,9 +53,14 @@ function f = snufftd(N, omega, alpha, b, q, m, use_mx)
 
     delta = m*omega-mu;
 
-    f = zeros([N*ones(1, d) 1]);
+    T = zeros([N*ones(1, d) 1]);
 
     grid = make_grid(N, d);
+
+    phase_shifts = exp(2*pi*i*grid/(m*N));
+
+    phase_shifts = num2cell(phase_shifts, 1:d);
+    phase_shifts = phase_shifts(:);
 
     % Loop through all combinations of grid shifts, apply sub-NUFFT and
     % aggregate.
@@ -64,12 +69,22 @@ function f = snufftd(N, omega, alpha, b, q, m, use_mx)
         [grid_shift{:}] = ind2sub(m*ones(1, d), grid_ind);
         grid_shift = cell2mat(grid_shift)-1;
 
-        f_sub = sub_snufftd(N, grid_shift, omega, alpha, b, q, m, use_mx);
+        T_sub = sub_snufftd(N, grid_shift, omega, alpha, b, q, m, use_mx);
 
-        phase_shift = reshape(grid, [N^d d])*(grid_shift(:)/(m*N));
-        phase_shift = reshape(phase_shift, [N*ones(1, d) 1]);
+        for k = 1:d
+            for l = 1:grid_shift(k)
+                T_sub = T_sub.*phase_shifts{k};
+            end
+        end
 
-        f = f + f_sub.*exp(2*pi*i*phase_shift);
+        T = T + T_sub;
+    end
+
+    wt = exp(b*(2*pi*[-N/2:N/2-1]'/(m*N)).^2);
+
+    f = T;
+    for l = 1:d
+        f = bsxfun(@times, f, permute(wt, [2:l 1 l+1]));
     end
 end
 
@@ -82,7 +97,7 @@ function grid = make_grid(N, d)
     grid = cell2mat(permute(grid, [2:d+1 1]));
 end
 
-function f_sub = sub_snufftd(N, grid_shift, omega, alpha, b, q, m, use_mx)
+function T = sub_snufftd(N, grid_shift, omega, alpha, b, q, m, use_mx)
     d = size(omega, 2);
 
     if ~use_mx
@@ -95,11 +110,4 @@ function f_sub = sub_snufftd(N, grid_shift, omega, alpha, b, q, m, use_mx)
     tau = ifftshift(tau);
     T = N^d*ifftn(tau);
     T = fftshift(T);
-
-    wt = exp(b*(2*pi*[-N/2:N/2-1]'/(m*N)).^2);
-
-    f_sub = T;
-    for l = 1:d
-        f_sub = bsxfun(@times, f_sub, permute(wt, [2:l 1 l+1]));
-    end
 end
