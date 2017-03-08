@@ -174,7 +174,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     prepare_outputs(plhs, N, d, m, &tau_re, &tau_im);
 
-    sub_snufftd_spread(tau_re, tau_im, N, n, d, grid_shift, omega, alpha_re, alpha_im, b, q, m);
+    sub_snufftd_spread(tau_re, tau_im, N, n, d, grid_shift, omega, alpha_re, alpha_im, b, q, m, NULL);
 
     free_inputs(grid_shift);
 }

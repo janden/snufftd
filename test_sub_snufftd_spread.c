@@ -57,7 +57,7 @@ int main()
             alpha_im[k] = ((double) rand())/RAND_MAX;
         }
 
-        sub_snufftd_spread(tau_re, tau_im, N, M, D, grid_shift, omega, alpha_re, alpha_im, 1.5629, 28, 2);
+        sub_snufftd_spread(tau_re, tau_im, N, M, D, grid_shift, omega, alpha_re, alpha_im, 1.5629, 28, 2, NULL);
     }
 
     free(tau_re);

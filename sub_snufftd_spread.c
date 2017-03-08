@@ -4,7 +4,7 @@
 #include <math.h>
 #include <string.h>
 
-void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int *grid_shift, double *omega, double *alpha_re, double *alpha_im, double b, int q, int m)
+void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int *grid_shift, double *omega, double *alpha_re, double *alpha_im, double b, int q, int m, double *precomp)
 {
     int k, l, carry, ind_k, updated;
     size_t j;
@@ -14,7 +14,7 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
     double *Pji;
 
     int *mu;
-    double delta, mult, val, alpha_re_j, alpha_im_j;
+    double delta, mult, mult1, val, alpha_re_j, alpha_im_j;
     size_t *nPowers;
 
     int max_width, center_ind;
@@ -79,11 +79,32 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
 
             delta = m*omega[j+k*n]-mu[k];
 
-            val = exp(-(delta*delta+2*mu_shift[k]*delta)/(4*b));
+            if(precomp == NULL)
+            {
+                val = exp(-(delta*delta+2*mu_shift[k]*delta)/(4*b));
+
+                mult = exp(-2*m*delta/(4*b));
+            }
+            else
+            {
+                val = precomp[0+2*k+2*d*j];
+
+                mult1 = precomp[1+2*k+2*d*j];
+
+                for(l = 0; l < mu_shift[k]; l++)
+                {
+                    val = val*mult1;
+                }
+
+                mult = mult1;
+
+                for(l = 1; l < m; l++)
+                {
+                    mult = mult*mult1;
+                }
+            }
 
             Pj[extm+k*max_width] = val;
-
-            mult = exp(-2*m*delta/(4*b));
 
             for(l = 1; l <= extm; l++)
             {
