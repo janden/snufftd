@@ -6,7 +6,7 @@
 % Input
 %    N: Desired resolution of the output f, i.e., the side length. If the
 %      dimension is d, this results in N^d entries for f.
-%    omega: An array of size n-by-d containing the frequencies at which to
+%    omega: An array of size d-by-n containing the frequencies at which to
 %      compute the transform, where n is the number of nodes and d is the
 %      dimension. Each entry must be in the range [-N/2, N/2].
 %    alpha: An array of length n containing the coefficients.
@@ -20,7 +20,7 @@
 %       words,
 %
 %          f(n1, ..., nd) = sum_{k=1}^n alpha(k)
-%              exp(2*pi*i (n1*omega(k,1) + ... + nd*omega(k,d)/N) )
+%              exp(2*pi*i (n1*omega(1,k) + ... + nd*omega(d,k)/N) )
 %
 %       to some approximation accuracy determined by b, q, and m.
 
@@ -46,7 +46,7 @@ function f = nufftd(N, omega, alpha, b, q, m, use_mx)
         error('N must be even.');
     end
 
-    d = size(omega, 2);
+    d = size(omega, 1);
 
     % Spread nodes onto oversampled Fourier transform tau.
     if ~use_mx

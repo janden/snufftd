@@ -62,9 +62,9 @@ void check_inputs_outputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
         mexErrMsgTxt("m must be a positive integer.");
     }
 
-    if(mxGetM(prhs[1]) != mxGetM(prhs[2]))
+    if(mxGetN(prhs[1]) != mxGetM(prhs[2]))
     {
-        mexErrMsgTxt("size(omega, 1) must match size(alpha, 1).");
+        mexErrMsgTxt("size(omega, 2) must match size(alpha, 1).");
     }
 
     if(nlhs > 1)
@@ -76,8 +76,8 @@ void check_inputs_outputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
 void parse_inputs(const mxArray *prhs[], mwSize *N, mwSize *n, mwSize *d, double **omega, double **alpha_re, double **alpha_im, double *b, int *q, int *m)
 {
     *N = (mwSize) round(mxGetScalar(prhs[0]));
-    *n = mxGetM(prhs[1]);
-    *d = mxGetN(prhs[1]);
+    *n = mxGetN(prhs[1]);
+    *d = mxGetM(prhs[1]);
 
     *omega = mxGetPr(prhs[1]);
 

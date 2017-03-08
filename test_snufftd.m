@@ -19,14 +19,14 @@ fprintf('%-15sTime: %15f s\n', 'NUDFT', tm0);
 
 % Standard non-uniform FFT.
 tmr = tic;
-f1 = nufftd(N, omega, alpha);
+f1 = nufftd(N, omega', alpha);
 tm1 = toc(tmr);
 err1 = norm(f0(:)-f1(:));
 fprintf('%-15sTime: %15f s    Error: %15g\n', 'NUFFT', tm1, err1);
 
 % MEX-augmented non-uniform FFT.
 tmr = tic;
-f2 = nufftd(N, omega, alpha, [], [], [], true);
+f2 = nufftd(N, omega', alpha, [], [], [], true);
 tm2 = toc(tmr);
 err2 = norm(f0(:)-f2(:));
 fprintf('%-15sTime: %15f s    Error: %15g\n', 'NUFFT (MEX)', tm2, err2);
