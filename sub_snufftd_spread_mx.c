@@ -9,7 +9,7 @@ void check_inputs_outputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
 {
     int i;
 
-    if(nrhs != 7)
+    if(nrhs != 7 && nrhs != 8)
     {
         mexErrMsgTxt("Incorrect number of inputs.");
     }
@@ -70,6 +70,11 @@ void check_inputs_outputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
         mexErrMsgTxt("m must be a positive integer.");
     }
 
+    if(nrhs >= 8 && (!mxIsNumeric(prhs[7]) || mxGetNumberOfElements(prhs[7]) != 2*mxGetM(prhs[1])*mxGetM(prhs[2])))
+    {
+        mexErrMsgTxt("precomp must have 2*d*n elements.");
+    }
+
     if(mxGetM(prhs[1]) != mxGetN(prhs[2]))
     {
         mexErrMsgTxt("size(grid_shift, 1) must match size(omega, 2).");
@@ -95,7 +100,7 @@ void check_inputs_outputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
     }
 }
 
-void parse_inputs(const mxArray *prhs[], mwSize *N, mwSize *n, mwSize *d, int **grid_shift, double **omega, double **alpha_re, double **alpha_im, double *b, int *q, int *m)
+void parse_inputs(int nrhs, const mxArray *prhs[], mwSize *N, mwSize *n, mwSize *d, int **grid_shift, double **omega, double **alpha_re, double **alpha_im, double *b, int *q, int *m, double **precomp)
 {
     int i;
 
@@ -128,6 +133,15 @@ void parse_inputs(const mxArray *prhs[], mwSize *N, mwSize *n, mwSize *d, int **
     *b = mxGetScalar(prhs[4]);
     *q = (int) round(mxGetScalar(prhs[5]));
     *m = (int) round(mxGetScalar(prhs[6]));
+
+    if(nrhs >= 8)
+    {
+        *precomp = mxGetPr(prhs[7]);
+    }
+    else
+    {
+        *precomp = NULL;
+    }
 }
 
 void prepare_outputs(mxArray *plhs[], mwSize N, mwSize d, int m, double **tau_re, double **tau_im)
@@ -160,7 +174,7 @@ void free_inputs(int *grid_shift)
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
     mwSize N, n, d;
-    double *omega, *alpha_re, *alpha_im, *tau_re, *tau_im;
+    double *omega, *alpha_re, *alpha_im, *tau_re, *tau_im, *precomp;
     int *grid_shift;
 
     double b;
@@ -170,11 +184,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     check_inputs_outputs(nlhs, plhs, nrhs, prhs);
 
-    parse_inputs(prhs, &N, &n, &d, &grid_shift, &omega, &alpha_re, &alpha_im, &b, &q, &m);
+    parse_inputs(nrhs, prhs, &N, &n, &d, &grid_shift, &omega, &alpha_re, &alpha_im, &b, &q, &m, &precomp);
 
     prepare_outputs(plhs, N, d, m, &tau_re, &tau_im);
 
-    sub_snufftd_spread(tau_re, tau_im, N, n, d, grid_shift, omega, alpha_re, alpha_im, b, q, m, NULL);
+    sub_snufftd_spread(tau_re, tau_im, N, n, d, grid_shift, omega, alpha_re, alpha_im, b, q, m, precomp);
 
     free_inputs(grid_shift);
 }
