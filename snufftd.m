@@ -62,6 +62,14 @@ function f = snufftd(N, omega, alpha, b, q, m, use_mx)
     phase_shifts = num2cell(phase_shifts, 1:d);
     phase_shifts = phase_shifts(:);
 
+    % Precompute certain coefficients needed in sub_snufftd.
+    precomp = zeros(2, d, n);
+
+    delta = m*omega-round(m*omega);
+
+    precomp(1,:,:) = exp(-delta'.^2/(4*b));
+    precomp(2,:,:) = exp(-2*delta'/(4*b));
+
     % Loop through all combinations of grid shifts, apply sub-NUFFT and
     % aggregate.
     for grid_ind = 1:m^d
@@ -69,7 +77,8 @@ function f = snufftd(N, omega, alpha, b, q, m, use_mx)
         [grid_shift{:}] = ind2sub(m*ones(1, d), grid_ind);
         grid_shift = cell2mat(grid_shift)-1;
 
-        T_sub = sub_snufftd(N, grid_shift, omega, alpha, b, q, m, use_mx);
+        T_sub = sub_snufftd(N, grid_shift, omega, alpha, b, q, m, use_mx, ...
+            precomp);
 
         for k = 1:d
             for l = 1:grid_shift(k)
@@ -97,13 +106,14 @@ function grid = make_grid(N, d)
     grid = cell2mat(permute(grid, [2:d+1 1]));
 end
 
-function T = sub_snufftd(N, grid_shift, omega, alpha, b, q, m, use_mx)
+function T = sub_snufftd(N, grid_shift, omega, alpha, b, q, m, use_mx, precomp)
+    n = size(omega, 1);
     d = size(omega, 2);
 
     if ~use_mx
-        tau = sub_snufftd_spread(N, grid_shift, omega, alpha, b, q, m);
+        tau = sub_snufftd_spread(N, grid_shift, omega, alpha, b, q, m, precomp);
     else
-        tau = sub_snufftd_spread_mx(N, grid_shift, omega, alpha, b, q, m);
+        tau = sub_snufftd_spread_mx(N, grid_shift, omega, alpha, b, q, m, precomp);
     end
 
     % Apply IFFT and reweight.
