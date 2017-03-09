@@ -65,6 +65,10 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
         for(k = 0; k < d; k++)
         {
             mu[k] = (int) round(m*omega[k+j*d]);
+        }
+
+        for(k = 0; k < d; k++)
+        {
             mu_shift[k] = (mu[k]-grid_shift[k])%m;
             if(mu_shift[k] < 0)
             {
