@@ -24,7 +24,7 @@ void check_inputs_outputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
 
     if(!mxIsDouble(prhs[1]) || mxIsSparse(prhs[1]) || mxGetNumberOfDimensions(prhs[1]) > 2 || mxIsComplex(prhs[1]))
     {
-        mexErrMsgTxt("omega must be a full real double matrix of size n-by-d.");
+        mexErrMsgTxt("omega must be a full real double matrix of size d-by-n.");
     }
 
     if(!mxIsDouble(prhs[2]) || mxIsSparse(prhs[2]) || mxGetNumberOfDimensions(prhs[2]) > 2 || mxGetN(prhs[2]) != 1)

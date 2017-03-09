@@ -7,12 +7,12 @@ d = 3;
 
 % Generate sample data.
 rand('state', 0);
-omega = N/2*(rand(n, d)-0.5);
+omega = N/2*(rand(d, n)-0.5);
 alpha = rand(n, 1) + 1i*rand(n, 1);
 
 % MATLAB implementation: nudftd.
 tmr = tic;
-f0 = nudftd(N, omega', alpha);
+f0 = nudftd(N, omega, alpha);
 tm0 = toc(tmr);
 
 % MEX implementation in C: nudftd_mx.

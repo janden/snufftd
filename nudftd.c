@@ -24,7 +24,7 @@ void nudftd(double *f_re, double *f_im, int N, int n, int d, double *omega, doub
             gamma = 0;
             for(k = 0; k < d; k++)
             {
-                gamma += (i[k]-N/2)*omega[j+k*n];
+                gamma += (i[k]-N/2)*omega[k+j*d];
             }
             gamma = 2*M_PI*gamma/N;
 

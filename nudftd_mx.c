@@ -24,7 +24,7 @@ void check_inputs_outputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
 
     if(!mxIsDouble(prhs[1]) || mxIsSparse(prhs[1]) || mxGetNumberOfDimensions(prhs[1]) > 2 || mxIsComplex(prhs[1]))
     {
-        mexErrMsgTxt("omega must be a full real double matrix of size n-by-d.");
+        mexErrMsgTxt("omega must be a full real double matrix of size d-by-n.");
     }
 
     if(!mxIsDouble(prhs[2]) || mxIsSparse(prhs[2]) || mxGetNumberOfDimensions(prhs[2]) > 2 || mxGetN(prhs[2]) != 1)
@@ -32,9 +32,9 @@ void check_inputs_outputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
         mexErrMsgTxt("alpha must be a full double matrix of size n-by-1.");
     }
 
-    if(mxGetM(prhs[1]) != mxGetM(prhs[2]))
+    if(mxGetN(prhs[1]) != mxGetM(prhs[2]))
     {
-        mexErrMsgTxt("size(omega, 1) must match size(alpha, 1).");
+        mexErrMsgTxt("size(omega, 2) must match size(alpha, 1).");
     }
 
     if(nlhs > 1)
@@ -46,8 +46,8 @@ void check_inputs_outputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
 void parse_inputs(const mxArray *prhs[], mwSize *N, mwSize *n, mwSize *d, double **omega, double **alpha_re, double **alpha_im)
 {
     *N = (mwSize) round(mxGetScalar(prhs[0]));
-    *n = mxGetM(prhs[1]);
-    *d = mxGetN(prhs[1]);
+    *n = mxGetN(prhs[1]);
+    *d = mxGetM(prhs[1]);
 
     *omega = mxGetPr(prhs[1]);
 
