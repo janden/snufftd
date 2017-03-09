@@ -6,7 +6,7 @@
 % Input
 %    N: Desired resolution of the output f, i.e., the side length. If the
 %      dimension is d, this results in N^d entries for f.
-%    omega: An array of size n-by-d containing the frequencies at which to
+%    omega: An array of size d-by-n containing the frequencies at which to
 %      compute the transform, where n is the number of nodes and d is the
 %      dimension. Each entry must be in the range [-N/2, N/2].
 %    alpha: An array of length n containing the coefficients.
@@ -20,7 +20,7 @@
 
 
 function f = nudftd(N, omega, alpha)
-    d = size(omega, 2);
+    d = size(omega, 1);
 
     % Necessary, for now.
     if mod(N, 2) ~= 0
@@ -33,7 +33,7 @@ function f = nudftd(N, omega, alpha)
     grid = cell2mat(permute(grid, [2:d+1 1]));
     grid = reshape(grid, [N^d d]);
 
-    f = exp(2*pi*i*grid*omega'/N)*alpha(:);
+    f = exp(2*pi*i*grid*omega/N)*alpha(:);
 
     f = reshape(f, [N*ones(1, d) 1]);
 end

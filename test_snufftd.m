@@ -13,7 +13,7 @@ alpha = rand(n, 1) + 1i*rand(n, 1);
 
 % Non-uniform DFT.
 tmr = tic;
-f0 = nudftd(N, omega, alpha);
+f0 = nudftd(N, omega', alpha);
 tm0 = toc(tmr);
 fprintf('%-15sTime: %15f s\n', 'NUDFT', tm0);
 

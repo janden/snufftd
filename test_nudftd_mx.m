@@ -12,7 +12,7 @@ alpha = rand(n, 1) + 1i*rand(n, 1);
 
 % MATLAB implementation: nudftd.
 tmr = tic;
-f0 = nudftd(N, omega, alpha);
+f0 = nudftd(N, omega', alpha);
 tm0 = toc(tmr);
 
 % MEX implementation in C: nudftd_mx.
