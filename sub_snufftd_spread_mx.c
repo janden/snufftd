@@ -32,7 +32,7 @@ void check_inputs_outputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
 
     if(!mxIsDouble(prhs[2]) || mxIsSparse(prhs[2]) || mxGetNumberOfDimensions(prhs[2]) > 2 || mxIsComplex(prhs[2]))
     {
-        mexErrMsgTxt("omega must be a full real double matrix of size n-by-d.");
+        mexErrMsgTxt("omega must be a full real double matrix of size d-by-n.");
     }
 
     if(!mxIsDouble(prhs[3]) || mxIsSparse(prhs[3]) || mxGetNumberOfDimensions(prhs[3]) > 2 || mxGetN(prhs[3]) != 1)
@@ -70,19 +70,19 @@ void check_inputs_outputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
         mexErrMsgTxt("m must be a positive integer.");
     }
 
-    if(nrhs >= 8 && (!mxIsNumeric(prhs[7]) || mxGetNumberOfElements(prhs[7]) != 2*mxGetM(prhs[1])*mxGetM(prhs[2])))
+    if(nrhs >= 8 && (!mxIsNumeric(prhs[7]) || mxGetNumberOfElements(prhs[7]) != 2*mxGetM(prhs[1])*mxGetN(prhs[2])))
     {
         mexErrMsgTxt("precomp must have 2*d*n elements.");
     }
 
-    if(mxGetM(prhs[1]) != mxGetN(prhs[2]))
+    if(mxGetM(prhs[1]) != mxGetM(prhs[2]))
     {
-        mexErrMsgTxt("size(grid_shift, 1) must match size(omega, 2).");
+        mexErrMsgTxt("size(grid_shift, 1) must match size(omega, 1).");
     }
 
-    if(mxGetM(prhs[2]) != mxGetM(prhs[3]))
+    if(mxGetN(prhs[2]) != mxGetM(prhs[3]))
     {
-        mexErrMsgTxt("size(omega, 1) must match size(alpha, 1).");
+        mexErrMsgTxt("size(omega, 2) must match size(alpha, 1).");
     }
 
     for(i = 0; i < mxGetM(prhs[1]); i++)
@@ -115,7 +115,7 @@ void parse_inputs(int nrhs, const mxArray *prhs[], mwSize *N, mwSize *n, mwSize 
         (*grid_shift)[i] = (int) round(mxGetPr(prhs[1])[i]);
     }
 
-    *n = mxGetM(prhs[2]);
+    *n = mxGetN(prhs[2]);
 
     *omega = mxGetPr(prhs[2]);
 

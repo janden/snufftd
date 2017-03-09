@@ -8,25 +8,25 @@ d = 3;
 % Generate data.
 rand('state', 0);
 
-omega = N*(rand(n, d)-0.5);
+omega = N*(rand(d, n)-0.5);
 alpha = rand(n, 1) + 1i*rand(n, 1);
 
 % Non-uniform DFT.
 tmr = tic;
-f0 = nudftd(N, omega', alpha);
+f0 = nudftd(N, omega, alpha);
 tm0 = toc(tmr);
 fprintf('%-15sTime: %15f s\n', 'NUDFT', tm0);
 
 % Standard non-uniform FFT.
 tmr = tic;
-f1 = nufftd(N, omega', alpha);
+f1 = nufftd(N, omega, alpha);
 tm1 = toc(tmr);
 err1 = norm(f0(:)-f1(:));
 fprintf('%-15sTime: %15f s    Error: %15g\n', 'NUFFT', tm1, err1);
 
 % MEX-augmented non-uniform FFT.
 tmr = tic;
-f2 = nufftd(N, omega', alpha, [], [], [], true);
+f2 = nufftd(N, omega, alpha, [], [], [], true);
 tm2 = toc(tmr);
 err2 = norm(f0(:)-f2(:));
 fprintf('%-15sTime: %15f s    Error: %15g\n', 'NUFFT (MEX)', tm2, err2);
@@ -49,21 +49,21 @@ if exist('nufft1d1') && d <= 3
     if d == 1
         tmr = tic;
         f5 = n*nufft1d1(n, ...
-            2*pi/N*omega(:,1), ...
+            2*pi/N*omega(1,:), ...
             alpha, 1, 1e-10, N);
         tm5 = toc(tmr);
         fun5 = 'nufft1d1';
     elseif d == 2
         tmr = tic;
         f5 = n*nufft2d1(n, ...
-            2*pi/N*omega(:,1), 2*pi/N*omega(:,2), ...
+            2*pi/N*omega(1,:), 2*pi/N*omega(2,:), ...
             alpha, 1, 1e-10, N, N);
         tm5 = toc(tmr);
         fun5 = 'nufft2d1';
     elseif d == 3
         tmr = tic;
         f5 = n*nufft3d1(n, ...
-            2*pi/N*omega(:,1), 2*pi/N*omega(:,2), 2*pi/N*omega(:,3), ...
+            2*pi/N*omega(1,:), 2*pi/N*omega(2,:), 2*pi/N*omega(3,:), ...
             alpha, 1, 1e-10, N, N, N);
         tm5 = toc(tmr);
         fun5 = 'nufft3d1';

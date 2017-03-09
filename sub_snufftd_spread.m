@@ -9,7 +9,7 @@
 %    grid_shift: A vector of length d with integer values between 0 and m-1
 %       specifying how much the subsampling grid of the oversampled Fourier
 %       transform has been shifted.
-%    omega: An array of size n-by-d containing the frequencies at which to
+%    omega: An array of size d-by-n containing the frequencies at which to
 %       compute the transform, where n is the number of nodes and d is the
 %       dimension. Each entry must be in the range [-N/2, N/2].
 %    alpha: An array of length n containing the coefficients.
@@ -35,8 +35,8 @@ function tau = sub_snufftd_spread(N, grid_shift, omega, alpha, b, q, m, precomp)
         precomp = [];
     end
 
-    n = size(omega, 1);
-    d = size(omega, 2);
+    n = size(omega, 2);
+    d = size(omega, 1);
 
     mu = round(m*omega);
 
@@ -48,8 +48,8 @@ function tau = sub_snufftd_spread(N, grid_shift, omega, alpha, b, q, m, precomp)
         P2 = exp(-delta.^2/(4*b));
         P3 = exp(2*delta/(4*b));
     else
-        P2 = permute(precomp(1,:,:), [3 2 1]);
-        P3 = permute(1./precomp(2,:,:), [3 2 1]);
+        P2 = permute(precomp(1,:,:), [2 3 1]);
+        P3 = permute(1./precomp(2,:,:), [2 3 1]);
     end
 
     % Depending on the relative position of each mu frequency on the shifted
@@ -68,7 +68,7 @@ function tau = sub_snufftd_spread(N, grid_shift, omega, alpha, b, q, m, precomp)
     for k = 1:n
         % Determine the relative shift with respect to the grid and generate
         % the necessary values of j.
-        mu_shift = mod(mu(k,:)-grid_shift.', m);
+        mu_shift = mod(mu(:,k)-grid_shift, m);
 
         js_rng = js_rngs(mu_shift+1);
 
@@ -80,17 +80,17 @@ function tau = sub_snufftd_spread(N, grid_shift, omega, alpha, b, q, m, precomp)
         % desired points in tau.
         for j_ind = 1:js_count
             [js_ind{:}] = ind2sub(js_sz, j_ind);
-            js = zeros(1, d);
+            js = zeros(d, 1);
             for l = 1:d
                 js(l) = js_rng{l}(js_ind{l});
             end
 
-            mu_j = mod((mu(k,:)+js-grid_shift.')/m+N/2, N)+1;
+            mu_j = mod((mu(:,k)+js-grid_shift)/m+N/2, N)+1;
 
-            tau_ind = (mu_j-1)*(N.^[0:d-1]')+1;
+            tau_ind = (mu_j-1)'*(N.^[0:d-1]')+1;
 
             Pkj = 1/(2*sqrt(b*pi))^d*...
-                prod(P1(js+q/2+1).'.*P2(k,1:d).*(P3(k,1:d).^js));
+                prod(P1(js+q/2+1).*P2(1:d,k).*(P3(1:d,k).^js));
 
             tau(tau_ind) = tau(tau_ind) + Pkj*alpha(k);
         end

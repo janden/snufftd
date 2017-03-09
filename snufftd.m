@@ -6,7 +6,7 @@
 % Input
 %    N: Desired resolution of the output f, i.e., the side length. If the
 %      dimension is d, this results in N^d entries for f.
-%    omega: An array of size n-by-d containing the frequencies at which to
+%    omega: An array of size d-by-n containing the frequencies at which to
 %      compute the transform, where n is the number of nodes and d is the
 %      dimension. Each entry must be in the range [-N/2, N/2].
 %    alpha: An array of length n containing the coefficients.
@@ -46,8 +46,8 @@ function f = snufftd(N, omega, alpha, b, q, m, use_mx)
         error('N must be even.');
     end
 
-    n = size(omega, 1);
-    d = size(omega, 2);
+    n = size(omega, 2);
+    d = size(omega, 1);
 
     mu = round(m*omega);
 
@@ -67,8 +67,8 @@ function f = snufftd(N, omega, alpha, b, q, m, use_mx)
 
     delta = m*omega-round(m*omega);
 
-    precomp(1,:,:) = exp(-delta'.^2/(4*b));
-    precomp(2,:,:) = exp(-2*delta'/(4*b));
+    precomp(1,:,:) = exp(-delta.^2/(4*b));
+    precomp(2,:,:) = exp(-2*delta/(4*b));
 
     % Loop through all combinations of grid shifts, apply sub-NUFFT and
     % aggregate.
@@ -107,8 +107,8 @@ function grid = make_grid(N, d)
 end
 
 function T = sub_snufftd(N, grid_shift, omega, alpha, b, q, m, use_mx, precomp)
-    n = size(omega, 1);
-    d = size(omega, 2);
+    n = size(omega, 2);
+    d = size(omega, 1);
 
     if ~use_mx
         tau = sub_snufftd_spread(N, grid_shift, omega, alpha, b, q, m, precomp);
