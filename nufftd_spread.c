@@ -46,7 +46,10 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
 
     for(j = 0; j < n; j++)
     {
-        memset(i, 0, d*sizeof(int));
+        for(k = 0; k < d; k++)
+        {
+            i[k] = 0;
+        }
 
         for(k = 0; k < d; k++)
         {
