@@ -88,27 +88,27 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
 
             if(precomp == NULL)
             {
-                val = exp(-(delta*delta+2*mu_shift[k]*delta)/(4*b));
+                val = exp(-delta*delta/(4*b));
 
-                mult = exp(-2*m*delta/(4*b));
+                mult1 = exp(-2*m*delta/(4*b));
             }
             else
             {
                 val = precomp[0+2*k+2*d*j];
 
                 mult1 = precomp[1+2*k+2*d*j];
+            }
 
-                for(l = 0; l < mu_shift[k]; l++)
-                {
-                    val = val*mult1;
-                }
+            for(l = 0; l < mu_shift[k]; l++)
+            {
+                val = val*mult1;
+            }
 
-                mult = mult1;
+            mult = mult1;
 
-                for(l = 1; l < m; l++)
-                {
-                    mult = mult*mult1;
-                }
+            for(l = 1; l < m; l++)
+            {
+                mult = mult*mult1;
             }
 
             Pj[extm+k*max_width] = val;
