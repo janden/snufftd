@@ -6,6 +6,34 @@ Fourier transform on the oversampled grid, the SNUFFTd words on shifted
 sub-grids. As a result, no arrays larger than the final output have to be
 allocated.
 
+### Instructions
+
+To compile the test executables, run
+
+```bash
+make
+```
+
+in the shell. They can then be run using:
+
+```bash
+test_nufftd_spread
+test_sub_snufftd_spread
+```
+
+To compile the MEX interfaces, run
+
+```octave
+make
+```
+
+in the GNU Octave/MATLAB command line. The interfaces are then tested
+by running:
+
+```octave
+test_snufftd
+```
+
 ### References
 
 [1] A. Dutt and V. Rokhlin, Fast Fourier transforms for nonequispaced data,
