@@ -57,10 +57,11 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
         {
             delta = m*omega[k+j*d]-mu[k];
 
-            Pj[(q/2)+k*(q+1)] = exp(-delta*delta/(4*b));
+            val = exp(-delta*delta/(4*b));
 
-            val = Pj[(q/2)+k*(q+1)];
             mult = exp(2*delta/(4*b));
+
+            Pj[(q/2)+k*(q+1)] = val;
 
             for(l = 1; l <= q/2; l++)
             {
