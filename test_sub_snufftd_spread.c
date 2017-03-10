@@ -44,7 +44,7 @@ int main()
         grid_shift[i] = 1;
     }
 
-    for(i = 0; i < 1; i++)
+    for(i = 0; i < 400; i++)
     {
         for(k = 0; k < D*M; k++)
         {

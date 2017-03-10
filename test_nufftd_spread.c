@@ -35,7 +35,7 @@ int main()
 
     srand(0);
 
-    for(i = 0; i < 50; i++)
+    for(i = 0; i < 100; i++)
     {
         for(k = 0; k < D*M; k++)
         {
