@@ -130,7 +130,12 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
 
             Pj[extm+k*max_width] = P1[q/2-mu_shift[k]]*Pj[extm+k*max_width];
 
-            mu[k] = (mu[k]-grid_shift[k]-mu_shift[k])/m-extm;
+            mu[k] = (mu[k]-grid_shift[k]-mu_shift[k])/m-extm+N/2;
+
+            while(mu[k] < 0)
+            {
+                mu[k] += N;
+            }
 
             num_ind[k] = extm+extp+1;
         }
@@ -139,11 +144,7 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
         {
             for(k = updated-1; k > 0; k--)
             {
-                ind_k = mu[k]+i[k]+N/2;
-                while(ind_k < 0)
-                {
-                    ind_k += N;
-                }
+                ind_k = mu[k]+i[k];
                 while(ind_k >= N)
                 {
                     ind_k -= N;
@@ -159,12 +160,8 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
                 alpha_im_j = Pji[1]*alpha_im[j];
             }
 
-            ind_k = mu[0]+N/2;
+            ind_k = mu[0];
 
-            while(ind_k < 0)
-            {
-                ind_k += N;
-            }
             while(ind_k >= N)
             {
                 ind_k -= N;
