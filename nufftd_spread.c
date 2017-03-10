@@ -6,7 +6,7 @@
 
 void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *omega, double *alpha_re, double *alpha_im, double b, int q, int m)
 {
-    int k, l, carry, ind_k, updated;
+    int k, l, carry, ind_k, updated, stop;
     size_t j;
     int *i;
     size_t *ind;
@@ -111,19 +111,35 @@ void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *
 
             ind[0] = ((size_t) mu[0])+ind[1];
 
-            for(i[0] = 0; i[0] < q+1; i[0]++)
+            i[0] = 0;
+
+            while(1)
             {
-                tau_re[ind[0]] += Pj[i[0]]*alpha_re_j;
-                if(alpha_im != NULL)
+                stop = q+1;
+
+                if(ind[0]+stop-i[0] > ind[1]+m*N)
                 {
-                    tau_im[ind[0]] += Pj[i[0]]*alpha_im_j;
+                    stop = ind[1]+m*N-ind[0]+i[0];
                 }
 
-                ind[0]++;
-                if(ind[0] == ind[1]+m*N)
+                while(i[0] < stop)
                 {
-                    ind[0] = ind[1];
+                    tau_re[ind[0]] += Pj[i[0]]*alpha_re_j;
+                    if(alpha_im != NULL)
+                    {
+                        tau_im[ind[0]] += Pj[i[0]]*alpha_im_j;
+                    }
+
+                    ind[0]++;
+                    i[0]++;
                 }
+
+                if(i[0] == q+1)
+                {
+                    break;
+                }
+
+                ind[0] = ind[1];
             }
 
             carry = 1;
