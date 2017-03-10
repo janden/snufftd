@@ -62,11 +62,6 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
     {
         for(k = 0; k < d; k++)
         {
-            i[k] = 0;
-        }
-
-        for(k = 0; k < d; k++)
-        {
             mu[k] = (int) round(m*omega[k+j*d]);
         }
 
@@ -139,6 +134,8 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
 
             num_ind[k] = extm+extp+1;
         }
+
+        memset(i, 0, d*sizeof(int));
 
         while(1)
         {
