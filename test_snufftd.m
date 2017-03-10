@@ -1,9 +1,13 @@
 % Test script for d-dimensional NUFFT and S-NUFFT.
 
 % Set parameters.
-N = 8;
-n = 5;
+N = 16;
+n = 32*N^2;
 d = 3;
+
+% Which parts to execute?
+do_nudft = true;
+do_slow = false;
 
 % Generate data.
 rand('state', 0);
@@ -12,17 +16,23 @@ omega = N*(rand(d, n)-0.5);
 alpha = rand(n, 1) + 1i*rand(n, 1);
 
 % Non-uniform DFT.
-tmr = tic;
-f0 = nudftd(N, omega, alpha);
-tm0 = toc(tmr);
-fprintf('%-15sTime: %15f s\n', 'NUDFT', tm0);
+if do_nudft
+    tmr = tic;
+    f0 = nudftd(N, omega, alpha);
+    tm0 = toc(tmr);
+    fprintf('%-15sTime: %15f s\n', 'NUDFT', tm0);
+else
+    f0 = NaN(N*ones(1, d));
+end
 
 % Standard non-uniform FFT.
-tmr = tic;
-f1 = nufftd(N, omega, alpha);
-tm1 = toc(tmr);
-err1 = norm(f0(:)-f1(:));
-fprintf('%-15sTime: %15f s    Error: %15g\n', 'NUFFT', tm1, err1);
+if do_slow
+    tmr = tic;
+    f1 = nufftd(N, omega, alpha);
+    tm1 = toc(tmr);
+    err1 = norm(f0(:)-f1(:));
+    fprintf('%-15sTime: %15f s    Error: %15g\n', 'NUFFT', tm1, err1);
+end
 
 % MEX-augmented non-uniform FFT.
 tmr = tic;
@@ -32,11 +42,13 @@ err2 = norm(f0(:)-f2(:));
 fprintf('%-15sTime: %15f s    Error: %15g\n', 'NUFFT (MEX)', tm2, err2);
 
 % Compact non-uniform FFT.
-tmr = tic;
-f3 = snufftd(N, omega, alpha);
-tm3 = toc(tmr);
-err3 = norm(f0(:)-f3(:));
-fprintf('%-15sTime: %15f s    Error: %15g\n', 'SNUFFT', tm3, err3);
+if do_slow
+    tmr = tic;
+    f3 = snufftd(N, omega, alpha);
+    tm3 = toc(tmr);
+    err3 = norm(f0(:)-f3(:));
+    fprintf('%-15sTime: %15f s    Error: %15g\n', 'SNUFFT', tm3, err3);
+end
 
 % MEX-augmented compact non-uniform FFT.
 tmr = tic;
