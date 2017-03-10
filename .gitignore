@@ -3,3 +3,6 @@
 *.mex*
 *.o
 .DS_Store
+
+test_nufftd_spread
+test_sub_snufftd_spread
