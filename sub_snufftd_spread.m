@@ -17,9 +17,9 @@
 %       m is 2).
 %    precomp: Optional precomputed coeffcients in the form of an 2-by-d-by-n
 %       array, where the first row corresponds to exp(-delta.^2/(4*b)) and the
-%       second row corresponds to exp(-2*delta/(4*b)), where delta(k,s) is
+%       second row corresponds to exp(-2*delta/(4*b)), where delta(k, s) is
 %
-%          m*omega(s, k) - round(m*omega(s, k)) .
+%          m*omega(k, s) - round(m*omega(k, s)) .
 %
 %       If left empty, these are calculated on-the-fly (default empty).
 %
