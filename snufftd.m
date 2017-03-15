@@ -1,14 +1,14 @@
 % SNUFFTD Shifting non-uniform fast Fourier transform (S-NUFFT)
 %
 % Usage
-%    f = snufftd(N, omega, alpha, b, q, m);
+%    f = snufftd(N, omega, alpha, b, q, m, use_mx);
 %
 % Input
 %    N: Desired resolution of the output f, i.e., the side length. If the
-%      dimension is d, this results in N^d entries for f.
+%       dimension is d, this results in N^d entries for f.
 %    omega: An array of size d-by-n containing the frequencies at which to
-%      compute the transform, where n is the number of nodes and d is the
-%      dimension. Each entry must be in the range [-N/2, N/2].
+%       compute the transform, where n is the number of nodes and d is the
+%       dimension. Each entry must be in the range [-N/2, N/2].
 %    alpha: An array of length n containing the coefficients.
 %    b, q, m: The parameters of the NUFFT (default b is 1.5629, q is 28, and
 %       m is 2).
