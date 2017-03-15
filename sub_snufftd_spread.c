@@ -85,7 +85,7 @@ void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int
             {
                 val = exp(-delta*delta/(4*b));
 
-                mult1 = exp(-2*m*delta/(4*b));
+                mult1 = exp(-2*delta/(4*b));
             }
             else
             {
