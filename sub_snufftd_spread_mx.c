@@ -70,7 +70,7 @@ void check_inputs_outputs(int nlhs, mxArray *plhs[], int nrhs, const mxArray *pr
         mexErrMsgTxt("m must be a positive integer.");
     }
 
-    if(nrhs >= 8 && (!mxIsNumeric(prhs[7]) || mxGetNumberOfElements(prhs[7]) != 2*mxGetM(prhs[1])*mxGetN(prhs[2])))
+    if(nrhs >= 8 && !(mxIsEmpty(prhs[7]) || (mxIsNumeric(prhs[7]) && mxGetNumberOfElements(prhs[7]) == 2*mxGetM(prhs[1])*mxGetN(prhs[2]))))
     {
         mexErrMsgTxt("precomp must have 2*d*n elements.");
     }
@@ -134,7 +134,7 @@ void parse_inputs(int nrhs, const mxArray *prhs[], mwSize *N, mwSize *n, mwSize 
     *q = (int) round(mxGetScalar(prhs[5]));
     *m = (int) round(mxGetScalar(prhs[6]));
 
-    if(nrhs >= 8)
+    if(nrhs >= 8 && !mxIsEmpty(prhs[7]))
     {
         *precomp = mxGetPr(prhs[7]);
     }
