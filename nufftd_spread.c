@@ -4,7 +4,7 @@
 #include <math.h>
 #include <string.h>
 
-void nufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, double *omega, double *alpha_re, double *alpha_im, double b, int q, int m)
+void nufftd_spread(double *tau_re, double *tau_im, size_t N, size_t n, size_t d, double *omega, double *alpha_re, double *alpha_im, double b, int q, int m)
 {
     int k, l, carry, ind_k, updated, stop;
     size_t j;

@@ -4,7 +4,7 @@
 #include <math.h>
 #include <string.h>
 
-void sub_snufftd_spread(double *tau_re, double *tau_im, int N, int n, int d, int *grid_shift, double *omega, double *alpha_re, double *alpha_im, double b, int q, int m, double *precomp)
+void sub_snufftd_spread(double *tau_re, double *tau_im, size_t N, size_t n, size_t d, int *grid_shift, double *omega, double *alpha_re, double *alpha_im, double b, int q, int m, double *precomp)
 {
     int k, l, carry, ind_k, updated, stop;
     size_t j;
