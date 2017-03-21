@@ -89,6 +89,17 @@ function f = snufftd(N, omega, alpha, b, q, m, use_mx)
         T = T + T_sub;
     end
 
+    % Since we're using FFTs, flip to get the IFFT.
+    idx.type = '()';
+
+    for l = 1:d
+        idx.subs = repmat({':'}, 1, d);
+        idx.subs{l} = [1 N:-1:2];
+
+        T = subsref(T, idx);
+    end
+
+    % Reweight to deconvolve.
     wt = exp(b*(2*pi*[-N/2:N/2-1]'/(m*N)).^2);
 
     f = T;
@@ -98,7 +109,11 @@ function f = snufftd(N, omega, alpha, b, q, m, use_mx)
 end
 
 function grid = make_grid(N, d)
-    rng = arrayfun(@(k)([-k/2:k/2-1]'), N*ones(1, d), 'uniformoutput', false);
+    % NOTE: The strange structure of the grid is because we are using FFTs
+    % instead of IFFTs (since FFTs are faster) and so we need to take this
+    % into account when applying the phase shifts.
+
+    rng = arrayfun(@(k)([-k/2 k/2-1:-1:-k/2+1]'), N*ones(1, d), 'uniformoutput', false);
 
     grid = cell(d, 1);
     [grid{:}] = ndgrid(rng{:});
@@ -116,8 +131,10 @@ function T = sub_snufftd(N, grid_shift, omega, alpha, b, q, m, use_mx, precomp)
         tau = sub_snufftd_spread_mx(N, grid_shift, omega, alpha, b, q, m, precomp);
     end
 
-    % Apply IFFT and reweight.
+    % Apply FFT.
     tau = ifftshift(tau);
-    T = N^d*ifftn(tau);
+
+    T = fftn(tau);
+
     T = fftshift(T);
 end

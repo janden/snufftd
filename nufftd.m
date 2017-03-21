@@ -55,18 +55,27 @@ function f = nufftd(N, omega, alpha, b, q, m, use_mx)
         tau = nufftd_spread_mx(N, omega, alpha, b, q, m);
     end
 
-    % Apply IFFT, extract central interval, and reweight.
+    % Apply FFT, flip, and extract central interval.
     tau = ifftshift(tau);
-    T = (m*N)^d*ifftn(tau);
+
+    sub1 = [1 m*N:-1:m*N-N/2+2 N/2+1:-1:2];
+
+    idx.type = '()';
+
+    T = tau;
+    for k = 1:d
+        T = fft(T, [], k);
+
+        idx.subs = repmat({':'}, 1, d);
+        idx.subs{k} = sub1;
+
+        T = subsref(T, idx);
+    end
+
     T = fftshift(T);
 
-    sub = {floor(m*N/2)+1-floor(N/2):floor(m*N/2)+ceil(N/2)};
-    sub = sub(ones(1, d));
-    sub_grid = cell(1, d);
-    [sub_grid{:}] = ndgrid(sub{:});
-    ind = sub2ind((m*N)*ones(1, d), sub_grid{:});
-
-    f = T(ind);
+    % Reweight to deconvolve.
+    f = T;
 
     wt = exp(b*(2*pi*[-N/2:N/2-1]'/(m*N)).^2);
 
